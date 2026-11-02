@@ -1,0 +1,10 @@
+{
+  "id": "te",
+  "name": "The Expendables",
+  "map": "Miramar",
+  "phase": 7,
+  "alive": 4,
+  "kills": 18,
+  "wwcdProbability": 0.82,
+  "status": "Holding High Ground"
+}

@@ -1,0 +1,10 @@
+{
+  "id": "ge",
+  "name": "Genius Esports",
+  "map": "Taego",
+  "phase": 5,
+  "alive": 3,
+  "kills": 9,
+  "wwcdProbability": 0.41,
+  "status": "Rotating Blue Zone"
+}

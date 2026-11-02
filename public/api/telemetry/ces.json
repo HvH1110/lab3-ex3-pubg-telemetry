@@ -1,0 +1,10 @@
+{
+  "id": "ces",
+  "name": "Cerberus Esports",
+  "map": "Erangel",
+  "phase": 6,
+  "alive": 4,
+  "kills": 14,
+  "wwcdProbability": 0.68,
+  "status": "In Safe Zone"
+}
