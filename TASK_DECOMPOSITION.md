@@ -21,7 +21,7 @@ Requests run in `useEffect` with an `AbortController`, so rapid squad switching 
 ## Checklist
 
 - [x] Task 3.0: Write `project-rules.md` and `TASK_DECOMPOSITION.md`
-- [ ] Task 3.1: Scaffold React 19 toolchain
+- [x] Task 3.1: Scaffold React 19 toolchain
 - [ ] Task 3.2: Define contracts and reducer
 - [ ] Task 3.3: Implement abortable telemetry service
 - [ ] Task 3.4: Implement 4-state telemetry with AbortController
