@@ -86,6 +86,65 @@ describe('PubgMatchTelemetry: 4-state machine', () => {
   });
 });
 
+describe('PubgMatchTelemetry: skeleton & retry alert', () => {
+  it('LOADING renders an aria-hidden skeleton that mirrors the card', async () => {
+    const { fetcher, last } = createFakeFetcher();
+    const { container } = mount('te', fetcher);
+    const skeleton = container.querySelector('article[aria-hidden="true"]');
+    if (skeleton === null) throw new Error('missing skeleton');
+    const skeletonLabels = [...skeleton.querySelectorAll('dt')].map((dt) => dt.textContent);
+    expect(skeleton.querySelectorAll('h3, p, dd')).toHaveLength(7);
+    // Hidden from the accessibility tree, so no fake "article" or fake numbers are announced.
+    expect(screen.queryByRole('article')).toBeNull();
+
+    await resolve(last());
+    const card = screen.getByRole('article', { name: 'The Expendables' });
+    expect([...card.querySelectorAll('dt')].map((dt) => dt.textContent)).toEqual(skeletonLabels);
+    expect(card.className).toBe(skeleton.className.split(' ')[0]);
+  });
+
+  it('ERROR renders a <section role="alert"> with Reconnect Satellite (Retry)', async () => {
+    const { fetcher, last } = createFakeFetcher();
+    mount('te', fetcher);
+    await reject(last(), new TelemetryError('PACKET_LOSS', 'x'));
+    const alert = screen.getByRole('alert');
+    expect(alert.tagName).toBe('SECTION');
+    expect(within(alert).getByRole('heading', { level: 3 }).textContent).toBe('Blue-Zone link lost');
+    const retry = within(alert).getByRole('button', { name: 'Reconnect Satellite (Retry)' });
+    expect(retry.getAttribute('type')).toBe('button');
+  });
+
+  it('Retry re-runs the effect for the same squad and recovers', async () => {
+    const { fetcher, calls, last } = createFakeFetcher();
+    mount('te', fetcher);
+    await reject(last(), new TelemetryError('PACKET_LOSS', 'x'));
+    act(() => screen.getByRole('button', { name: 'Reconnect Satellite (Retry)' }).click());
+    expect(calls.map((c) => c.squadId)).toEqual(['te', 'te']);
+    expect(status()).toBe('LOADING');
+    expect(screen.queryByRole('alert')).toBeNull();
+    await resolve(last());
+    expect(status()).toBe('SUCCESS');
+  });
+
+  it('keeps focus inside the panel when the Retry button disappears', async () => {
+    const { fetcher, last } = createFakeFetcher();
+    mount('te', fetcher);
+    await reject(last(), new TelemetryError('HTTP', 'x'));
+    const retry = screen.getByRole('button', { name: 'Reconnect Satellite (Retry)' });
+    retry.focus();
+    act(() => retry.click());
+    expect(document.activeElement).toBe(screen.getByRole('heading', { level: 2 }));
+  });
+
+  it('keeps the live region mounted across states so screen readers hear every change', async () => {
+    const { fetcher, last } = createFakeFetcher();
+    mount('te', fetcher);
+    const region = within(panel()).getByRole('status');
+    await reject(last(), new TelemetryError('PACKET_LOSS', 'x'));
+    expect(within(panel()).getByRole('status')).toBe(region);
+  });
+});
+
 describe('PubgMatchTelemetry: AbortController & race conditions', () => {
   it('aborts the previous request when the squad changes (CES -> TE -> GE)', async () => {
     const { fetcher, calls, last } = createFakeFetcher();

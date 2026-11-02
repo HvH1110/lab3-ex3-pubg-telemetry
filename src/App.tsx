@@ -2,6 +2,7 @@ import { useId, useMemo, useState } from 'react';
 import { PubgMatchTelemetry } from './components/PubgMatchTelemetry';
 import { SquadSelector } from './components/SquadSelector';
 import { DEFAULT_LOSS_RATE, createTelemetryFetcher } from './services/telemetry-service';
+import styles from './App.module.css';
 import { SQUADS, type SquadId } from './types';
 
 const LINK_QUALITIES = [
@@ -24,7 +25,7 @@ export function App() {
         <p>KRAFTON × PUBG Vietnam Series squad radar. Match data is simulated for the lab.</p>
       </header>
       <SquadSelector squads={SQUADS} selectedId={squadId} onSelect={setSquadId} />
-      <p>
+      <p className={styles.link}>
         <label htmlFor={linkId}>Satellite link</label>
         <select id={linkId} value={lossRate} onChange={(e) => setLossRate(Number(e.target.value))}>
           {LINK_QUALITIES.map((quality) => (

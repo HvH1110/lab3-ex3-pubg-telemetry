@@ -25,5 +25,5 @@ Requests run in `useEffect` with an `AbortController`, so rapid squad switching 
 - [x] Task 3.2: Define contracts and reducer
 - [x] Task 3.3: Implement abortable telemetry service
 - [x] Task 3.4: Implement 4-state telemetry with AbortController
-- [ ] Task 3.5: Add skeleton UI and retry alert
+- [x] Task 3.5: Add skeleton UI and retry alert
 - [ ] Task 3.6: Document Checkpoint 3 audit in README

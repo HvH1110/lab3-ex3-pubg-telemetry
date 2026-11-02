@@ -1,0 +1,53 @@
+.selector {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.selector legend {
+  margin-bottom: 0.5rem;
+  padding: 0;
+  font-weight: 700;
+}
+
+.squads {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.squad {
+  display: grid;
+  justify-items: start;
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 0.5rem;
+  text-align: start;
+  cursor: pointer;
+}
+
+.squad strong {
+  font-size: 1.125rem;
+  letter-spacing: 0.05em;
+}
+
+.squad small {
+  color: var(--muted);
+}
+
+.squad[aria-pressed='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.squad[aria-pressed='true'] small {
+  color: inherit;
+}

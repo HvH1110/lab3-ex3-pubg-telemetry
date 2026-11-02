@@ -1,8 +1,9 @@
-import { useId } from 'react';
+import { useId, useRef } from 'react';
 import { useSquadTelemetry } from '../hooks/useSquadTelemetry';
 import { createTelemetryFetcher } from '../services/telemetry-service';
 import { assertNever, findSquad, type SquadId, type TelemetryFetcher, type TelemetryView } from '../types';
-import { TelemetryCard } from './TelemetryCard';
+import styles from './PubgMatchTelemetry.module.css';
+import { TelemetryCard, TelemetryCardSkeleton } from './TelemetryCard';
 
 /** Module-level so its identity is stable and the effect does not re-run on every render. */
 const DEFAULT_FETCHER = createTelemetryFetcher();
@@ -27,16 +28,24 @@ function announcement(view: TelemetryView): string {
   }
 }
 
-function TelemetryBody({ view }: { readonly view: TelemetryView }) {
+function TelemetryBody({ view, onRetry }: { readonly view: TelemetryView; readonly onRetry: () => void }) {
   switch (view.status) {
     case 'IDLE':
-      return <p>Select a squad to sync the KRAFTON radar.</p>;
+      return <p className={styles.idle}>Select a squad to sync the KRAFTON radar.</p>;
     case 'LOADING':
-      return <p>Syncing KRAFTON radar…</p>;
+      return <TelemetryCardSkeleton />;
     case 'SUCCESS':
       return <TelemetryCard data={view.data} />;
     case 'ERROR':
-      return <p role="alert">Blue-Zone link lost: {view.error}</p>;
+      return (
+        <section className={styles.alert} role="alert">
+          <h3>Blue-Zone link lost</h3>
+          <p>{view.error}</p>
+          <button className={styles.retry} type="button" onClick={onRetry}>
+            Reconnect Satellite (Retry)
+          </button>
+        </section>
+      );
     default:
       return assertNever(view);
   }
@@ -44,15 +53,29 @@ function TelemetryBody({ view }: { readonly view: TelemetryView }) {
 
 export function PubgMatchTelemetry({ squadId = null, fetchTelemetry = DEFAULT_FETCHER }: PubgMatchTelemetryProps) {
   const headingId = useId();
-  const { view } = useSquadTelemetry(squadId, fetchTelemetry);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const { view, retry } = useSquadTelemetry(squadId, fetchTelemetry);
+
+  const handleRetry = (): void => {
+    retry();
+    // The Retry button unmounts when LOADING starts; keep keyboard focus inside the panel.
+    headingRef.current?.focus();
+  };
 
   return (
-    <section aria-labelledby={headingId} aria-busy={view.status === 'LOADING'} data-status={view.status}>
-      <h2 id={headingId}>Live Squad Radar</h2>
-      <p role="status" aria-live="polite">
+    <section
+      className={styles.panel}
+      aria-labelledby={headingId}
+      aria-busy={view.status === 'LOADING'}
+      data-status={view.status}
+    >
+      <h2 id={headingId} ref={headingRef} tabIndex={-1}>
+        Live Squad Radar
+      </h2>
+      <p className={styles.srOnly} role="status" aria-live="polite">
         {announcement(view)}
       </p>
-      <TelemetryBody view={view} />
+      <TelemetryBody view={view} onRetry={handleRetry} />
     </section>
   );
 }
